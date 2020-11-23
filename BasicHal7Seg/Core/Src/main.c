@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -42,19 +42,26 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-const uint8 codeSegments [] =
-{
-		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_E_Pin | S7_SEG_F_Pin, // 0x3F
-		S7_SEG_B_Pin | S7_SEG_C_Pin ,															 // 0x06
-		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_G_Pin | S7_SEG_E_Pin | S7_SEG_D_Pin,				 //
-		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_G_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin,
-		S7_SEG_F_Pin | S7_SEG_G_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin,
-		S7_SEG_A_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin,
-		S7_SEG_A_Pin | S7_SEG_F_Pin | S7_SEG_E_Pin | S7_SEG_D_Pin | S7_SEG_C_Pin | S7_SEG_G_Pin,
-		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin
-		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_E_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin,
-		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin
-};
+const uint8_t codeSegments[] =
+		{
+		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_E_Pin
+				| S7_SEG_F_Pin, // 0
+				S7_SEG_B_Pin | S7_SEG_C_Pin,							// 1
+				S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_G_Pin | S7_SEG_E_Pin
+						| S7_SEG_D_Pin,				 // 2
+				S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_G_Pin | S7_SEG_C_Pin
+						| S7_SEG_D_Pin, // 3
+				S7_SEG_F_Pin | S7_SEG_G_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin, // 4
+				S7_SEG_A_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin | S7_SEG_C_Pin
+						| S7_SEG_D_Pin, // 5
+				S7_SEG_A_Pin | S7_SEG_F_Pin | S7_SEG_E_Pin | S7_SEG_D_Pin
+						| S7_SEG_C_Pin | S7_SEG_G_Pin, // 6
+				S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin, // 7
+				S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin
+						| S7_SEG_E_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin, // 8
+				S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin
+						| S7_SEG_F_Pin | S7_SEG_G_Pin // 9
+		};
 
 /* USER CODE END PV */
 
@@ -104,12 +111,40 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	uint32_t muxDelay = 1;
+//	HAL_GPIO_WritePin(S7_DIG4_GPIO_Port, S7_DIG4_Pin, GPIO_PIN_SET);
+	while (1) {
+//		for (int i = 0; i < 10; ++i)
+		{
+			HAL_GPIO_WritePin(GPIOG, codeSegments[4], GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG4_Pin, GPIO_PIN_SET);
+			HAL_Delay(muxDelay);
+			HAL_GPIO_WritePin(GPIOG, codeSegments[4], GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG4_Pin, GPIO_PIN_RESET);
+
+			HAL_GPIO_WritePin(GPIOG, codeSegments[3], GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG3_Pin, GPIO_PIN_SET);
+			HAL_Delay(muxDelay);
+			HAL_GPIO_WritePin(GPIOG, codeSegments[3], GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG3_Pin, GPIO_PIN_RESET);
+
+			HAL_GPIO_WritePin(GPIOG, codeSegments[2], GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG2_Pin, GPIO_PIN_SET);
+			HAL_Delay(muxDelay);
+			HAL_GPIO_WritePin(GPIOG, codeSegments[2], GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG2_Pin, GPIO_PIN_RESET);
+
+			HAL_GPIO_WritePin(GPIOG, codeSegments[1], GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG1_Pin, GPIO_PIN_SET);
+			HAL_Delay(muxDelay);
+			HAL_GPIO_WritePin(GPIOG, codeSegments[1], GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOB, S7_DIG1_Pin, GPIO_PIN_RESET);
+
+		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -205,11 +240,10 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
