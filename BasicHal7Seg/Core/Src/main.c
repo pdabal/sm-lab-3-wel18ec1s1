@@ -32,6 +32,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define S7_DIG_MSK 			S7_DIG1_Pin | S7_DIG2_Pin | S7_DIG3_Pin | S7_DIG4_Pin
+#define S7_SEG_MSK			S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_E_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin | S7_SEG_DP_Pin
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,6 +56,7 @@ S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_E_Pin | S7_SE
 		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin, // 7
 		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_E_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin, // 8
 		S7_SEG_A_Pin | S7_SEG_B_Pin | S7_SEG_C_Pin | S7_SEG_D_Pin | S7_SEG_F_Pin | S7_SEG_G_Pin // 9
+		// TODO: implementacja znakow ASCII
 };
 
 const uint8_t digitModule[] = { S7_DIG4_Pin, S7_DIG3_Pin, S7_DIG2_Pin, S7_DIG1_Pin };
@@ -70,8 +74,8 @@ static void MX_GPIO_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint32_t S7_Display(int16_t value){
-	if(value >= 0 && value < 10000){
+uint32_t S7_Display(int16_t value) {
+	if (value >= 0 && value < 10000) {
 		display[0] = codeSegments[value % 10];
 		value /= 10;
 		display[1] = value ? codeSegments[value % 10] : 0;
@@ -80,11 +84,37 @@ uint32_t S7_Display(int16_t value){
 		value /= 10;
 		display[3] = value ? codeSegments[value % 10] : 0;
 		return 0;
-	} else if (value < 0 && value > -1000){
+	} else if (value < 0 && value > -1000) {
 		// TODO: Implementacja dla liczb ujemnych - zadanie dodatkowe 2
 		return 0;
 	} else {
 		return 1;
+	}
+}
+// float pi = 3.14, example: S7_DisplayFractional((uint16_t)(pi * 100), 2);
+uint32_t S7_DisplayFractional(uint16_t value, uint8_t fractionalDigit) {
+	if (fractionalDigit < 4 && value < 10000) {
+		// TODO: Implementacja liczb rzeczywistych - zadanie dodatkowe 3
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+void S7_Multiplex(void) {
+	static uint8_t dig = 0;
+
+	HAL_GPIO_WritePin(GPIOB, S7_DIG_MSK, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOG, S7_SEG_MSK, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOG, display[dig], GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB, digitModule[dig++], GPIO_PIN_SET);
+	dig %= 4;
+}
+
+void HAL_SYSTICK_Callback(void) {
+	static uint8_t delay = 0;
+	if ((delay++ % 5) == 0) {
+		S7_Multiplex();
 	}
 }
 
@@ -124,20 +154,20 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	uint32_t muxDelay = 1;
-	uint32_t cnt= 0;
+	uint32_t cnt = 0;
 //	HAL_GPIO_WritePin(S7_DIG4_GPIO_Port, S7_DIG4_Pin, GPIO_PIN_SET);
 	while (1) {
 		S7_Display(cnt++);
 		HAL_Delay(100);
-		for (int i = 0; i < 4; ++i)
-		{
-			HAL_GPIO_WritePin(GPIOG, display[i], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOB, digitModule[i], GPIO_PIN_SET);
-			HAL_Delay(muxDelay);
-			HAL_GPIO_WritePin(GPIOB, digitModule[i], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOG, display[i], GPIO_PIN_RESET);
-
-		}
+//		for (int i = 0; i < 4; ++i)
+//		{
+//			HAL_GPIO_WritePin(GPIOG, display[i], GPIO_PIN_SET);
+//			HAL_GPIO_WritePin(GPIOB, digitModule[i], GPIO_PIN_SET);
+//			HAL_Delay(muxDelay);
+//			HAL_GPIO_WritePin(GPIOB, digitModule[i], GPIO_PIN_RESET);
+//			HAL_GPIO_WritePin(GPIOG, display[i], GPIO_PIN_RESET);
+//
+//		}
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
